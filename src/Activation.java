@@ -33,7 +33,7 @@ public class Activation {
     // Also when calculating the Error change rate in terms of the input (dCdI)
     // it is just a matter of multiplying, i.e. ∂C/∂I = ∂C/∂O * ∂O/∂I.
     public Vec dCdI(Vec out, Vec dCdO) {
-        return dCdO.elementProduct(dFn(out));
+        return dCdO.addVecByMultiplyValues(dFn(out));
     }
 
     public String getName() {
@@ -90,7 +90,7 @@ public class Activation {
         public Vec fn(Vec in) {
             double[] data = in.getData();
             double sum = 0;
-            double max = in.max();    // Trick: translate the input by largest element to avoid overflow.
+            double max = in.maxValue();    // Trick: translate the input by largest element to avoid overflow.
             for (double a : data)
                 sum += exp(a - max);
 
@@ -100,9 +100,9 @@ public class Activation {
 
         @Override
         public Vec dCdI(Vec out, Vec dCdO) {
-            double x = out.elementProduct(dCdO).sumElements();
-            Vec sub = dCdO.sub(x);
-            return out.elementProduct(sub);
+            double x = out.addVecByMultiplyValues(dCdO).sumElements();
+            Vec sub = dCdO.subtractVectorByValue(x);
+            return out.addVecByMultiplyValues(sub);
         }
     };
 

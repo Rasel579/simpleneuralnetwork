@@ -2,7 +2,6 @@ package math;
 
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
@@ -28,11 +27,17 @@ public class Vec {
         data = new double[size];
     }
 
+    /**
+     * Возвращает размер
+     */
     public int dimension() {
         return data.length;
     }
 
-    public double dot(Vec u) {
+    /**
+     * Перемножает элементы вектора и возвращает сумму
+     */
+    public double multiplyVec(Vec u) {
         assertCorrectDimension(u.dimension());
 
         double sum = 0;
@@ -42,6 +47,11 @@ public class Vec {
         return sum;
     }
 
+    /**
+     * Применяет функцию ко всем элементам вектора
+     * @param fn
+     * @return
+     */
     public Vec map(Function fn) {
         double[] result = new double[data.length];
         for (int i = 0; i < data.length; i++)
@@ -65,7 +75,7 @@ public class Vec {
         return ixOfLargest;
     }
 
-    public Vec sub(Vec u) {
+    public Vec subtractVectorByValue(Vec u) {
         assertCorrectDimension(u.dimension());
 
         double[] result = new double[u.dimension()];
@@ -91,12 +101,21 @@ public class Vec {
         return Arrays.hashCode(data);
     }
 
-
-    public Vec mul(double s) {
+    /**
+     *  Умножает все элементы вектора на значение
+     * @param
+     * @return
+     */
+    public Vec multiplyByValue(double s) {
         return map(value -> s * value);
     }
 
-    public Matrix outerProduct(Vec u) {
+    /**
+     *  Получить матрицу кол-вом строк вход вектора и столбцов текущего
+     * @param u
+     * @return
+     */
+    public Matrix getMatrixByMultiplyValues(Vec u) {
         double[][] result = new double[u.dimension()][dimension()];
 
         for (int i = 0; i < data.length; i++)
@@ -106,7 +125,7 @@ public class Vec {
         return new Matrix(result);
     }
 
-    public Vec elementProduct(Vec u) {
+    public Vec addVecByMultiplyValues(Vec u) {
         assertCorrectDimension(u.dimension());
 
         double[] result = new double[u.dimension()];
@@ -117,7 +136,7 @@ public class Vec {
         return new Vec(result);
     }
 
-    public Vec add(Vec u) {
+    public Vec addVecBySumValues(Vec u) {
         assertCorrectDimension(u.dimension());
 
         double[] result = new double[u.dimension()];
@@ -128,7 +147,7 @@ public class Vec {
         return new Vec(result);
     }
 
-    public Vec mul(Matrix m) {
+    public Vec multiplyByValue(Matrix m) {
         assertCorrectDimension(m.rows());
 
         double[][] mData = m.getData();
@@ -148,11 +167,11 @@ public class Vec {
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public double max() {
+    public double maxValue() {
         return DoubleStream.of(data).max().getAsDouble();
     }
 
-    public Vec sub(double a) {
+    public Vec subtractVectorByValue(double a) {
         double[] result = new double[dimension()];
 
         for (int i = 0; i < data.length; i++)

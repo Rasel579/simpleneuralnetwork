@@ -16,13 +16,11 @@ public record GradientDescent(double learningRate) implements Optimizer {
 
     @Override
     public Vec updateBias(Vec bias, Vec dCdB) {
-        return bias.sub(dCdB.mul(learningRate));
+        return bias.subtractVectorByValue(dCdB.multiplyByValue(learningRate));
     }
 
     @Override
     public Optimizer copy() {
-        // no need to make copies since this optimizer has
-        // no state. Same instance can serve all layers.
         return this;
     }
 }

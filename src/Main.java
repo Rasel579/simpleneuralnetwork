@@ -63,10 +63,20 @@ public class Main {
 
         learn(datas, network);
 
+        double[][] L = {{1, 0, 0},
+                        {1, 0, 0},
+                        {1, 0, 0},
+                        {1, 1, 1}
+        };
         Result result = network.evaluate(new Vec(L));
         System.out.println(result.getOutput());
         System.out.println(DataUtil.findByMaxIndx(result.getOutput().indexOfLargestElement()).label);
 
+        double[][] X = {{1, 0, 1},
+                        {0, 1, 0},
+                        {1, 0, 1},
+                        {1, 0, 1}
+        };
         result = network.evaluate(new Vec(X));
         System.out.println(result.getOutput());
         System.out.println(DataUtil.findByMaxIndx(result.getOutput().indexOfLargestElement()).label);
@@ -106,7 +116,7 @@ public class Main {
                 Result result = network.evaluate(input, define);
 
 
-                if (result.getOutput().indexOfLargestElement() == define.indexOfLargestElement()) {
+                if (result.getOutput().indexOfLargestElement() == define.indexOfLargestElement() && result.getOutput().getData()[result.getOutput().indexOfLargestElement()] > 0.999) {
                     correct.incrementAndGet();
                 }
 

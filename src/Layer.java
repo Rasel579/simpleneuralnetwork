@@ -56,7 +56,7 @@ public class Layer {
         if (!hasPrecedingLayer()) {
             out.set(i);    // No calculation i input layer, just store data
         } else {
-            out.set(activation.fn(i.mul(weights).add(bias)));
+            out.set(activation.fn(i.multiplyByValue(weights).addVecBySumValues(bias)));
         }
         return out.get();
     }
@@ -109,7 +109,7 @@ public class Layer {
     public synchronized void addDeltaWeightsAndBiases(Matrix dW, Vec dB) {
         deltaWeights.add(dW);
         deltaWeightsAdded++;
-        deltaBias = deltaBias.add(dB);
+        deltaBias = deltaBias.addVecBySumValues(dB);
         deltaBiasAdded++;
     }
 
@@ -131,7 +131,7 @@ public class Layer {
         }
 
         if (deltaBiasAdded > 0) {
-            Vec average_bias = deltaBias.mul(1.0 / deltaBiasAdded);
+            Vec average_bias = deltaBias.multiplyByValue(1.0 / deltaBiasAdded);
             bias = optimizer.updateBias(bias, average_bias);
             deltaBias = deltaBias.map(a -> 0);  // Clear
             deltaBiasAdded = 0;

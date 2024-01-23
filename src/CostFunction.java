@@ -22,13 +22,13 @@ public interface CostFunction {
 
         @Override
         public double getTotal(Vec expected, Vec actual) {
-            Vec diff = expected.sub(actual);
-            return diff.dot(diff) / actual.dimension();
+            Vec diff = expected.subtractVectorByValue(actual);
+            return diff.multiplyVec(diff) / actual.dimension();
         }
 
         @Override
         public Vec getDerivative(Vec expected, Vec actual) {
-            return actual.sub(expected).mul(2.0 / actual.dimension());
+            return actual.subtractVectorByValue(expected).multiplyByValue(2.0 / actual.dimension());
         }
     }
 
@@ -43,13 +43,13 @@ public interface CostFunction {
 
         @Override
         public double getTotal(Vec expected, Vec actual) {
-            Vec diff = actual.sub(expected);
-            return diff.dot(diff);
+            Vec diff = actual.subtractVectorByValue(expected);
+            return diff.multiplyVec(diff);
         }
 
         @Override
         public Vec getDerivative(Vec expected, Vec actual) {
-            return actual.sub(expected).mul(2);
+            return actual.subtractVectorByValue(expected).multiplyByValue(2);
         }
     }
 
@@ -64,13 +64,13 @@ public interface CostFunction {
 
         @Override
         public double getTotal(Vec expected, Vec actual) {
-            Vec diff = expected.sub(actual);
-            return diff.dot(diff) * 0.5;
+            Vec diff = expected.subtractVectorByValue(actual);
+            return diff.multiplyVec(diff) * 0.5;
         }
 
         @Override
         public Vec getDerivative(Vec expected, Vec actual) {
-            return actual.sub(expected);
+            return actual.subtractVectorByValue(expected);
         }
     }
 }
