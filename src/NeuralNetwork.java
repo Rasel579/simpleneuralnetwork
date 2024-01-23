@@ -95,7 +95,7 @@ public class NeuralNetwork {
         // iterate backwards through the layers
         do {
             Vec dCdI = layer.getActivation().dCdI(layer.getOut(), dCdO);
-            Matrix dCdW = dCdI.outerProduct(layer.getPrecedingLayer().getOut());
+            Matrix dCdW = dCdI.getMatrixByMultiplyValues(layer.getPrecedingLayer().getOut());
 
             // Store the deltas for weights and biases
             layer.addDeltaWeightsAndBiases(dCdW, dCdI);
@@ -120,9 +120,6 @@ public class NeuralNetwork {
                 l.updateWeightsAndBias();
 
     }
-
-    // --------------------------------------------------------------------
-
 
     public List<Layer> getLayers() {
         return layers;
@@ -217,8 +214,6 @@ public class NeuralNetwork {
         }
 
     }
-
-    // -----------------------------
 
     public static class NetworkState {
         String costFunction;

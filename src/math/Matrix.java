@@ -25,7 +25,7 @@ public class Matrix {
     public Vec multiply(Vec v) {
         double[] out = new double[rows];
         for (int y = 0; y < rows; y++)
-            out[y] = new Vec(data[y]).dot(v);
+            out[y] = new Vec(data[y]).multiplyVec(v);
 
         return new Vec(out);
     }
@@ -91,8 +91,6 @@ public class Matrix {
         double avg = average();
         return stream(data).flatMapToDouble(Arrays::stream).map(a -> (a - avg) * (a - avg)).average().getAsDouble();
     }
-
-    // -------------------------------------------------------------------------
 
     private void assertCorrectDimension(Matrix other) {
         if (rows != other.rows || cols != other.cols)
