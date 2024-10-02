@@ -4,7 +4,7 @@ import math.Matrix;
 import math.Vec;
 
 /**
- * Updates Weights and biases based on a constant learning rate - i.e. W -= η * dC/dW
+ * Обновляет веса и смещения на основе скорости обучения - i.e. W -= η * dC/dW
  */
 public record GradientDescent(double learningRate) implements Optimizer {
 

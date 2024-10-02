@@ -3,9 +3,6 @@ package math;
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
-import static java.lang.String.format;
-import static java.util.Arrays.stream;
-
 public class Vec {
     private final double[] data;
 
@@ -15,12 +12,12 @@ public class Vec {
 
     public Vec(double[][] data) {
 
-        this.data = stream(data).flatMapToDouble(DoubleStream::of)
+        this.data = Arrays.stream(data).flatMapToDouble(DoubleStream::of)
                 .toArray();
     }
 
     public Vec(int... data) {
-        this(stream(data).asDoubleStream().toArray());
+        this(Arrays.stream(data).asDoubleStream().toArray());
     }
 
     public Vec(int size) {
@@ -49,6 +46,7 @@ public class Vec {
 
     /**
      * Применяет функцию ко всем элементам вектора
+     *
      * @param fn
      * @return
      */
@@ -75,6 +73,9 @@ public class Vec {
         return ixOfLargest;
     }
 
+    /**
+     * Вычетание векторов
+     */
     public Vec subtractVectorByValue(Vec u) {
         assertCorrectDimension(u.dimension());
 
@@ -102,7 +103,8 @@ public class Vec {
     }
 
     /**
-     *  Умножает все элементы вектора на значение
+     * Умножает все элементы вектора на значение
+     *
      * @param
      * @return
      */
@@ -111,7 +113,8 @@ public class Vec {
     }
 
     /**
-     *  Получить матрицу кол-вом строк вход вектора и столбцов текущего
+     * Получить матрицу кол-вом строк вход вектора и столбцов текущего
+     *
      * @param u
      * @return
      */
@@ -125,6 +128,9 @@ public class Vec {
         return new Matrix(result);
     }
 
+    /**
+     * умножение векторов
+     */
     public Vec addVecByMultiplyValues(Vec u) {
         assertCorrectDimension(u.dimension());
 
@@ -136,6 +142,9 @@ public class Vec {
         return new Vec(result);
     }
 
+    /**
+     * Сложение векторов
+     */
     public Vec addVecBySumValues(Vec u) {
         assertCorrectDimension(u.dimension());
 
@@ -147,15 +156,21 @@ public class Vec {
         return new Vec(result);
     }
 
+    /**
+     * Перемножает вектор на элементы матрицы
+     */
     public Vec multiplyByValue(Matrix m) {
         assertCorrectDimension(m.rows());
 
         double[][] mData = m.getData();
         double[] result = new double[m.cols()];
 
-        for (int col = 0; col < m.cols(); col++)
-            for (int row = 0; row < m.rows(); row++)
+        for (int col = 0; col < m.cols(); col++) {
+            for (int row = 0; row < m.rows(); row++) {
                 result[col] += mData[row][col] * data[row];
+            }
+        }
+
 
         return new Vec(result);
     }
@@ -163,7 +178,7 @@ public class Vec {
 
     private void assertCorrectDimension(int inpDim) {
         if (dimension() != inpDim)
-            throw new IllegalArgumentException(format("Different dimensions: Input is %d, Vec is %d", inpDim, dimension()));
+            throw new IllegalArgumentException(String.format("Разные размерности векторов: Input is %d, Vec is %d", inpDim, dimension()));
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
