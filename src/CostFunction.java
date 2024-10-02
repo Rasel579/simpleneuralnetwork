@@ -1,5 +1,8 @@
 import math.Vec;
 
+/**
+ * Функции потерь
+ */
 public interface CostFunction {
 
     String getName();
@@ -8,11 +11,8 @@ public interface CostFunction {
 
     Vec getDerivative(Vec expected, Vec actual);
 
-
-    // --------------------------------------------------------------
-
     /**
-     * Cost function: Mean square error, C = 1/n * ∑(y−exp)^2
+     * Функции потерь: Среднеквадратичная ошибка, C = 1/n * ∑(y−exp)^2
      */
     class MSE implements CostFunction {
         @Override
@@ -33,7 +33,7 @@ public interface CostFunction {
     }
 
     /**
-     * Cost function: Quadratic, C = ∑(y−exp)^2
+     * Функции потерь: Квадратичная ошибка, C = ∑(y−exp)^2
      */
     class Quadratic implements CostFunction {
         @Override
@@ -54,7 +54,7 @@ public interface CostFunction {
     }
 
     /**
-     * Cost function: HalfQuadratic, C = 0.5 ∑(y−exp)^2
+     * Функции потерь: Полуквадратичная ошибка, C = 0.5 ∑(y−exp)^2
      */
     class HalfQuadratic implements CostFunction {
         @Override

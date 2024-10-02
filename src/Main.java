@@ -10,7 +10,7 @@ import static java.util.Collections.unmodifiableList;
 
 public class Main {
 
-    private static final int BATCH_SIZE = 32;
+    private static final int BATCH_SIZE = 2;
     private static final double[][] Y = {{1, 0, 1},
             {0, 1, 0},
             {0, 1, 0},
@@ -65,11 +65,11 @@ public class Main {
 
         double[][] L = {{1, 0, 0},
                         {1, 0, 0},
-                        {1, 0, 0},
+                        {1, 0, 1},
                         {1, 1, 1}
         };
         Result result = network.evaluate(new Vec(L));
-        System.out.println(result.getOutput());
+        System.out.println(result.toString());
         System.out.println(DataUtil.findByMaxIndx(result.getOutput().indexOfLargestElement()).label);
 
         double[][] X = {{1, 0, 1},
@@ -78,7 +78,7 @@ public class Main {
                         {1, 0, 1}
         };
         result = network.evaluate(new Vec(X));
-        System.out.println(result.getOutput());
+        System.out.println(result.toString());
         System.out.println(DataUtil.findByMaxIndx(result.getOutput().indexOfLargestElement()).label);
     }
 

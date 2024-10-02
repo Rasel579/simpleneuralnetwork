@@ -7,8 +7,8 @@ import static java.lang.Math.log;
 public class Activation {
 
     private final String name;
-    private Function fn;
-    private Function dFn;
+    private Function fn; //функция
+    private Function dFn; //производная функции
 
     public Activation(String name) {
         this.name = name;
@@ -20,18 +20,16 @@ public class Activation {
         this.dFn = dFn;
     }
 
-    // For most activation function it suffice to map each separate element.
-    // I.e. they depend only on the single component in the vector.
+    //применяем функцию к вектору
     public Vec fn(Vec in) {
         return in.map(fn);
     }
-
+    //применяем производную к вектору
     public Vec dFn(Vec out) {
         return out.map(dFn);
     }
 
-    // Also when calculating the Error change rate in terms of the input (dCdI)
-    // it is just a matter of multiplying, i.e. ∂C/∂I = ∂C/∂O * ∂O/∂I.
+    // Вычисляет градиент функции i.e. ∂C/∂I = ∂C/∂O * ∂O/∂I.
     public Vec dCdI(Vec out, Vec dCdO) {
         return dCdO.addVecByMultiplyValues(dFn(out));
     }
@@ -41,12 +39,6 @@ public class Activation {
     }
 
 
-    // --------------------------------------------------------------------------
-    // --- A few predefined ones ------------------------------------------------
-    // --------------------------------------------------------------------------
-    // The simple properties of most activation functions as stated above makes
-    // it easy to create the majority of them by just providing lambdas for
-    // fn and the diff dfn.
 
     public static Activation ReLU = new Activation(
             "ReLU",
@@ -81,16 +73,15 @@ public class Activation {
     );
 
 
-    // --------------------------------------------------------------------------
-    // Softmax needs a little extra love since element output depends on more
-    // than one component of the vector. Simple element mapping will not suffice.
-    // --------------------------------------------------------------------------
+    /**
+     * Функция Активации SoftMax
+     */
     public static Activation Softmax = new Activation("Softmax") {
         @Override
         public Vec fn(Vec in) {
             double[] data = in.getData();
             double sum = 0;
-            double max = in.maxValue();    // Trick: translate the input by largest element to avoid overflow.
+            double max = in.maxValue();
             for (double a : data)
                 sum += exp(a - max);
 
@@ -105,9 +96,6 @@ public class Activation {
             return out.addVecByMultiplyValues(sub);
         }
     };
-
-
-    // --------------------------------------------------------------------------
 
     private static double sigmoidFn(double x) {
         return 1.0 / (1.0 + exp(-x));

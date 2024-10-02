@@ -1,9 +1,10 @@
 import math.Matrix;
 import math.Vec;
 import optimizer.Optimizer;
+
 /**
-        * A single layer in the network.
-        * Contains the weights and biases coming into this layer.
+ * Слой в нейросети
+ * Содержит веса и смещения
  */
 public class Layer {
 
@@ -14,14 +15,11 @@ public class Layer {
     private Matrix weights;
     private Vec bias;
     private double l2 = 0;
-
-    private Layer precedingLayer;
-
-    // Not yet realized changes to the weights and biases ("observed things not yet learned")
-    private transient Matrix deltaWeights;
-    private transient Vec deltaBias;
-    private transient int deltaWeightsAdded = 0;
-    private transient int deltaBiasAdded = 0;
+    private Layer precedingLayer; //предшествующий слой
+    private transient Matrix deltaWeights; //разность весов
+    private transient Vec deltaBias; //разность смещений
+    private transient int deltaWeightsAdded = 0; //кол-во весов добавлено
+    private transient int deltaBiasAdded = 0;  //кол-во смещений добавлено
 
     public Layer(int size, Activation activation) {
         this(size, activation, 0);
@@ -46,15 +44,15 @@ public class Layer {
     }
 
     /**
-     * Feed the in-vector, i, through this layer.
-     * Stores a copy of the out vector.
+     * Принимает входящий вектор, i, через слой.
+     * Сохраняет копию выходящего вектора
      *
-     * @param i The input vector
-     * @return The out vector o (i.e. the result of o = iW + b)
+     * @param i Входяший вектор
+     * @return Вызодящий вектор out (i.e. результат out = iW + b)
      */
     public Vec evaluate(Vec i) {
         if (!hasPrecedingLayer()) {
-            out.set(i);    // No calculation i input layer, just store data
+            out.set(i);    // Не расчитывает, просто сохраняет
         } else {
             out.set(activation.fn(i.multiplyByValue(weights).addVecBySumValues(bias)));
         }
@@ -103,8 +101,8 @@ public class Layer {
     }
 
     /**
-     * Add upcoming changes to the Weights and Biases.
-     * This does not mean that the network is updated.
+     * Добавляет входящие изменения весов и смещений
+     * Не озночает, что нейросеть изменилась
      */
     public synchronized void addDeltaWeightsAndBiases(Matrix dW, Vec dB) {
         deltaWeights.add(dW);
@@ -114,33 +112,30 @@ public class Layer {
     }
 
     /**
-     * Takes an average of all added Weights and Biases and tell the
-     * optimizer to apply them to the current weights and biases.
+     * Берет все усредненные добавленные веса и смещения и передает
+     * оптимизатору применить для текущих весов и смещений
      * <p>
-     * Also applies L2 regularization on the weights if used.
+     * Также принимает L2 регуляризацию к весам, если есть
      */
     public synchronized void updateWeightsAndBias() {
         if (deltaWeightsAdded > 0) {
-            if (l2 > 0)
+            if (l2 > 0) {
                 weights.map(value -> value - l2 * value);
+            }
 
-            Matrix average_dW = deltaWeights.mul(1.0 / deltaWeightsAdded);
-            optimizer.updateWeights(weights, average_dW);
-            deltaWeights.map(a -> 0);   // Clear
+            Matrix averagedW = deltaWeights.mul(1.0 / deltaWeightsAdded);
+            optimizer.updateWeights(weights, averagedW);
+            deltaWeights.map(a -> 0);   // Зачищаем
             deltaWeightsAdded = 0;
         }
 
         if (deltaBiasAdded > 0) {
             Vec average_bias = deltaBias.multiplyByValue(1.0 / deltaBiasAdded);
             bias = optimizer.updateBias(bias, average_bias);
-            deltaBias = deltaBias.map(a -> 0);  // Clear
+            deltaBias = deltaBias.map(a -> 0);  // Зачищаем
             deltaBiasAdded = 0;
         }
     }
-
-
-    // ------------------------------------------------------------------
-
 
     public LayerState getState() {
         return new LayerState(this);

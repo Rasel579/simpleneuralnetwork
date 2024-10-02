@@ -2,14 +2,13 @@ import math.Matrix;
 
 import static math.SharedRnd.getRnd;
 
+/**
+ * Инициализация матрицы весов
+ */
 public interface Initializer {
 
     void initWeights(Matrix weights, int layer);
 
-
-    // -----------------------------------------------------------------
-    // --- A few predefined ones ---------------------------------------
-    // -----------------------------------------------------------------
     record Random(double min, double max) implements Initializer {
 
         @Override

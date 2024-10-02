@@ -16,18 +16,15 @@ public class NeuralNetwork {
     private final List<Layer> layers = new ArrayList<>();
 
     /**
-     * Creates a neural network given the configuration set in the builder
-     *
-     * @param nb The config for the neural network
+     * Создает нейронную сеть с гиперпараметрами в билдере
+     * @param nb билдер с гиперпараметрами сети
      */
     private NeuralNetwork(Builder nb) {
         costFunction = nb.costFunction;
         networkInputSize = nb.networkInputSize;
         optimizer = nb.optimizer;
         l2 = nb.l2;
-
-        // Adding inputLayer
-
+        //входной слой
         Layer inputLayer = new Layer(networkInputSize, Activation.Identity);
         layers.add(inputLayer);
 
@@ -37,7 +34,7 @@ public class NeuralNetwork {
             Layer layer = nb.layers.get(i);
             Matrix w = new Matrix(precedingLayer.size(), layer.size());
             nb.initializer.initWeights(w, i);
-            layer.setWeights(w);    // Each layer contains the weights between preceding layer and itself
+            layer.setWeights(w);
             layer.setOptimizer(optimizer.copy());
             layer.setL2(l2);
             layer.setPrecedingLayer(precedingLayer);
@@ -49,8 +46,8 @@ public class NeuralNetwork {
 
 
     /**
-     * Evaluates an input vector, returning the networks output,
-     * without cost or learning anything from it.
+     * Расчитывает входящий вектор и получает результат,
+     * без расчета потерь, обновления весов итп.
      */
     public Result evaluate(Vec input) {
         return evaluate(input, null);
@@ -58,15 +55,15 @@ public class NeuralNetwork {
 
 
     /**
-     * Evaluates an input vector, returning the networks output.
-     * If <code>expected</code> is specified the result will contain
-     * a cost and the network will gather some learning from this
-     * operation.
+     * Расчитывает входящий вектор и получает результат сети.
+     * Если <code>expected</code> это ожидаемый результат
+     * то сеть обучиться
      */
     public Result evaluate(Vec input, Vec expected) {
         Vec signal = input;
-        for (Layer layer : layers)
+        for (Layer layer : layers){
             signal = layer.evaluate(signal);
+        }
 
         if (expected != null) {
             learnFrom(expected);
@@ -79,45 +76,46 @@ public class NeuralNetwork {
 
 
     /**
-     * Will gather some learning based on the <code>expected</code> vector
-     * and how that differs to the actual output from the network. This
-     * difference (or error) is backpropagated through the net. To make
-     * it possible to use mini batches the learning is not immediately
-     * realized - i.e. <code>learnFrom</code> does not alter any weights.
-     * Use <code>updateFromLearning()</code> to do that.
+     * Сеть обучиться в зависимости <code>expected</code> от ожидаемого вектора
+     * и насколько разным будут ожидаемый и предсказания сети.
+     * Эта разность (ошибка) пройдет через обратное распространение.
+     * Для достижения обучения сети надо использовать мини-batch - i.e.
+     * <code>learnFrom</code> не изменит любые веса,
+     * Необходимо использовать <code>updateFromLearning()</code> для обновления весов.
      */
     private void learnFrom(Vec expected) {
         Layer layer = getLastLayer();
 
-        // The error is initially the derivative of the cost-function.
+        // ошибка по функции потерь
         Vec dCdO = costFunction.getDerivative(expected, layer.getOut());
 
-        // iterate backwards through the layers
+        // итерируем от последнего слоя до входного
         do {
             Vec dCdI = layer.getActivation().dCdI(layer.getOut(), dCdO);
             Matrix dCdW = dCdI.getMatrixByMultiplyValues(layer.getPrecedingLayer().getOut());
 
-            // Store the deltas for weights and biases
+            // Сохраняет разность весов и смещений
             layer.addDeltaWeightsAndBiases(dCdW, dCdI);
 
-            // prepare error propagation and store for next iteration
+            // Готовит ошибку для следующего распространения
             dCdO = layer.getWeights().multiply(dCdI);
 
             layer = layer.getPrecedingLayer();
         }
-        while (layer.hasPrecedingLayer());     // Stop when we are at input layer
+        while (layer.hasPrecedingLayer());     // Останавливаемся когда доходим до входного слоя
     }
 
 
     /**
-     * Let all gathered (but not yet realised) learning "sink in".
-     * That is: Update the weights and biases based on the deltas
-     * collected during evaluation & training.
+     * Обновляет веса и смещения разностей
+     * собранных через рассчеты и обучения.
      */
     public synchronized void updateFromLearning() {
         for (Layer l : layers)
-            if (l.hasPrecedingLayer())         // Skip input layer
+            if (l.hasPrecedingLayer()){
                 l.updateWeightsAndBias();
+            }
+
 
     }
 
@@ -134,18 +132,14 @@ public class NeuralNetwork {
         return layers.get(layers.size() - 1);
     }
 
-
-    // --------------------------------------------------------------------
-
     /**
-     * Simple builder for a NeuralNetwork
+     * Простой билдер для сети
      */
     public static class Builder {
 
         private final List<Layer> layers = new ArrayList<>();
         private final int networkInputSize;
 
-        // defaults:
         private Initializer initializer = new Initializer.Random(-0.5, 0.5);
         private CostFunction costFunction = new CostFunction.Quadratic();
         private Optimizer optimizer = new GradientDescent(0.005);
@@ -156,8 +150,7 @@ public class NeuralNetwork {
         }
 
         /**
-         * Create a builder from an existing neural network, hence making
-         * it possible to do a copy of the entire state and modify as needed.
+         * Создает билдер из существующей сети
          */
         public Builder(NeuralNetwork other) {
             networkInputSize = other.networkInputSize;
