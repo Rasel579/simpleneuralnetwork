@@ -1,20 +1,30 @@
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import cost.CostFunction;
+import cost.Quadratic;
 import math.Matrix;
 import math.Vec;
 import optimizer.GradientDescent;
 import optimizer.Optimizer;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NeuralNetwork {
+public class NeuralNetwork implements Serializable {
 
-    private final CostFunction costFunction;
-    private final int networkInputSize;
-    private final double l2;
-    private final Optimizer optimizer;
+    @JsonProperty("costFunction")
+    private CostFunction costFunction;
+    @JsonProperty("networkInputSize")
+    private int networkInputSize;
+    @JsonProperty("l2")
+    private double l2;
+    @JsonProperty("optimizer")
+    private Optimizer optimizer;
+    @JsonProperty("layers")
+    private List<Layer> layers = new ArrayList<>();
 
-    private final List<Layer> layers = new ArrayList<>();
-
+    public NeuralNetwork(){}
     /**
      * Создает нейронную сеть с гиперпараметрами в билдере
      * @param nb билдер с гиперпараметрами сети
@@ -61,7 +71,7 @@ public class NeuralNetwork {
      */
     public Result evaluate(Vec input, Vec expected) {
         Vec signal = input;
-        for (Layer layer : layers){
+        for (Layer layer : layers) {
             signal = layer.evaluate(signal);
         }
 
@@ -112,7 +122,7 @@ public class NeuralNetwork {
      */
     public synchronized void updateFromLearning() {
         for (Layer l : layers)
-            if (l.hasPrecedingLayer()){
+            if (l.hasPrecedingLayer()) {
                 l.updateWeightsAndBias();
             }
 
@@ -123,8 +133,14 @@ public class NeuralNetwork {
         return layers;
     }
 
-    public String toJson(boolean pretty) {
-        return new NetworkState(this).toString();
+    public void saveModelToJson(String path, String name) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(new File(path + name + ".json"), this);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -141,7 +157,7 @@ public class NeuralNetwork {
         private final int networkInputSize;
 
         private Initializer initializer = new Initializer.Random(-0.5, 0.5);
-        private CostFunction costFunction = new CostFunction.Quadratic();
+        private CostFunction costFunction = new Quadratic();
         private Optimizer optimizer = new GradientDescent(0.005);
         private double l2 = 0;
 
@@ -204,6 +220,14 @@ public class NeuralNetwork {
 
         public NeuralNetwork create() {
             return new NeuralNetwork(this);
+        }
+        public NeuralNetwork load(String path){
+            ObjectMapper mapper = new ObjectMapper();
+            try(InputStream is = new FileInputStream(path)) {
+                return mapper.readValue(is, NeuralNetwork.class);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
     }

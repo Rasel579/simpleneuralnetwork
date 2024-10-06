@@ -1,10 +1,16 @@
 package math;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
-public class Vec {
-    private final double[] data;
+public class Vec implements Serializable {
+    @JsonProperty("data")
+    private double[] data;
+    public Vec() {
+    }
 
     public Vec(double... data) {
         this.data = data;
@@ -66,13 +72,6 @@ public class Vec {
         return "Vec{" + "data=" + Arrays.toString(data) + '}';
     }
 
-    public int indexOfLargestElement() {
-        int ixOfLargest = 0;
-        for (int i = 0; i < data.length; i++)
-            if (data[i] > data[ixOfLargest]) ixOfLargest = i;
-        return ixOfLargest;
-    }
-
     /**
      * Вычетание векторов
      */
@@ -104,7 +103,6 @@ public class Vec {
 
     /**
      * Умножает все элементы вектора на значение
-     *
      * @param
      * @return
      */
@@ -114,7 +112,6 @@ public class Vec {
 
     /**
      * Получить матрицу кол-вом строк вход вектора и столбцов текущего
-     *
      * @param u
      * @return
      */

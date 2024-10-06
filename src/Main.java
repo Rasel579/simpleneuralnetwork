@@ -1,134 +1,100 @@
+import cost.Quadratic;
+import image.ImageUtils;
+import math.Matrix;
 import math.Vec;
 import optimizer.GradientDescent;
-
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.DoubleStream;
-
-import static java.util.Arrays.stream;
-import static java.util.Collections.unmodifiableList;
 
 public class Main {
-
     private static final int BATCH_SIZE = 2;
-    private static final double[][] Y = {{1, 0, 1},
-            {0, 1, 0},
-            {0, 1, 0},
-            {0, 0, 0}
-    };
+    private static final String SAVE_PATH = "./models/";
 
-    private static final double[][] X = {{1, 0, 1},
-            {0, 1, 0},
-            {1, 0, 1},
-            {0, 0, 0}
-    };
-
-    private static final double[][] I = {{0, 1, 0},
-            {0, 1, 0},
-            {0, 1, 0},
-            {0, 0, 0}
-    };
-
-    private static final double[][] L = {{1, 0, 0},
-            {1, 0, 0},
-            {1, 1, 1},
-            {0, 0, 0}
-    };
 
     public static void main(String[] args) {
+        Map<String, File[]> trainedData = ImageUtils.getTrainData("./trainData/alphabetset");
+        //Реализация загрузки обученной модели из файла
+        // NeuralNetwork learnedNet = new NeuralNetwork.Builder(1).load("./models./model1728235656673.json");
+        Result result;
+        /* try {
+            result = learnedNet.evaluate(new Vec(ImageUtils.convertToMatrix(trainedData.get("X")[1])));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        List<double[][]> datas = List.of(Y, X, I, L);
+        System.out.println(result.getResult(trainedData.keySet()));
 
-        datas.forEach(data -> {
-            for (double[] datum : data) {
-                for (double v : datum) {
-                    System.out.print(v + "\t");
-                }
-                System.out.println();
-            }
-            System.out.println();
-            System.out.println(stream(data).flatMapToDouble(DoubleStream::of).toString());
+         */
 
-        });
-
-        NeuralNetwork network = new NeuralNetwork.Builder(12)
+        NeuralNetwork network = new NeuralNetwork.Builder(1156)
                 .addLayer(new Layer(38, Activation.Leaky_ReLU))
                 .addLayer(new Layer(12, Activation.Leaky_ReLU))
-                .addLayer(new Layer(4, Activation.Softmax))
+                .addLayer(new Layer(26, Activation.Softmax))
                 .initWeights(new Initializer.XavierNormal())
-                .setCostFunction(new CostFunction.Quadratic())
-                .setOptimizer(new GradientDescent(0.05))
+                .setCostFunction(new Quadratic())
+                .setOptimizer(new GradientDescent(0.005))
                 .create();
 
+        learn(trainedData, network);
 
-        learn(datas, network);
+        try {
+            result = network.evaluate(new Vec(ImageUtils.convertToMatrix(trainedData.get("X")[1])));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        double[][] L = {{1, 0, 0},
-                        {1, 0, 0},
-                        {1, 0, 1},
-                        {1, 1, 1}
-        };
-        Result result = network.evaluate(new Vec(L));
-        System.out.println(result.toString());
-        System.out.println(DataUtil.findByMaxIndx(result.getOutput().indexOfLargestElement()).label);
-
-        double[][] X = {{1, 0, 1},
-                        {0, 1, 0},
-                        {1, 0, 1},
-                        {1, 0, 1}
-        };
-        result = network.evaluate(new Vec(X));
-        System.out.println(result.toString());
-        System.out.println(DataUtil.findByMaxIndx(result.getOutput().indexOfLargestElement()).label);
+        System.out.println(result.getResult(trainedData.keySet()));
+        try {
+            result = network.evaluate(new Vec(ImageUtils.convertToMatrix(trainedData.get("C")[1])));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(result.getResult(trainedData.keySet()));
     }
 
     private static List<double[][]> getBatch(int i, List<double[][]> data) {
         int fromIx = i * BATCH_SIZE;
         int toIx = Math.min(data.size(), (i + 1) * BATCH_SIZE);
-        return unmodifiableList(data.subList(fromIx, toIx));
+        return Collections.unmodifiableList(data.subList(fromIx, toIx));
     }
 
-    private static int applyDataToNet(List<double[][]> data, NeuralNetwork network, boolean learn) {
+    private static int applyDataToNet(Map<String, File[]> dataSet, NeuralNetwork network) {
         final AtomicInteger correct = new AtomicInteger();
 
-        for (int i = 0; i <= data.size() / BATCH_SIZE; i++) {
-
-            getBatch(i, data).forEach(chared -> {
-                Vec input = new Vec(chared);
-                Vec define = new Vec(DataUtil.UNDEFINED.array);
-
-                if (chared == Y) {
-                    define = new Vec(DataUtil.Y_ALPHABET.array);
+        for (String letter : dataSet.keySet()) {
+            List<double[][]> data = Arrays.stream(dataSet.get(letter)).map(file -> {
+                try {
+                    Matrix mat = new Matrix(ImageUtils.convertToMatrix(file));
+                    mat.normalize();
+                    return mat.getData();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
+            }).toList();
 
-                if (chared == I) {
-                    define = new Vec(DataUtil.I_ALPHABET.array);
-                }
+            for (int i = 0; i <= data.size() / BATCH_SIZE; i++) {
 
-                if (chared == X) {
-                    define = new Vec(DataUtil.X_ALPHABET.array);
-                }
+                getBatch(i, data).forEach(chared -> {
 
-                if (chared == L) {
-                    define = new Vec(DataUtil.L_ALPHABET.array);
-                }
-
-                Result result = network.evaluate(input, define);
+                    Vec input = new Vec(chared);
+                    Vec expect = new Vec(ImageUtils.getVecFromData(dataSet.keySet(), letter));
+                    Result result = network.evaluate(input, expect);
 
 
-                if (result.getOutput().indexOfLargestElement() == define.indexOfLargestElement() && result.getOutput().getData()[result.getOutput().indexOfLargestElement()] > 0.999) {
-                    correct.incrementAndGet();
-                }
+                    if ( DataUtil.maxIndxOfArray(result.getOutput().getData()) == DataUtil.maxIndxOfArray(expect.getData())) {
+                        correct.incrementAndGet();
+                    }
 
-            });
-
-            network.updateFromLearning();
+                });
+                network.updateFromLearning();
+            }
         }
-
         return correct.get();
     }
 
-    private static void learn(List<double[][]> trainData, NeuralNetwork network) {
+    private static void learn(Map<String, File[]> trainData, NeuralNetwork network) {
         boolean shoodStop = false;
         int epoch = 0;
         double errorRateOnTrainDS = -1;
@@ -136,10 +102,14 @@ public class Main {
         while (!shoodStop) {
             epoch++;
 
-            int correctTrainDS = applyDataToNet(trainData, network, true);
-            errorRateOnTrainDS = 100 - (100.0 * correctTrainDS / trainData.size());
-            shoodStop = 0.1 > errorRateOnTrainDS;
+            int correctTrainDS = applyDataToNet(trainData, network);
+
+            errorRateOnTrainDS = 100 - (100.0 * correctTrainDS / trainData.values().stream().flatMap(ab -> Arrays.stream(ab).sequential())
+                    .count());
+            shoodStop = 1 > errorRateOnTrainDS;
+            System.out.println("error: " + errorRateOnTrainDS);
         }
+        network.saveModelToJson(SAVE_PATH, "model"+ System.currentTimeMillis());
         System.out.println("count epoch: " + epoch);
         System.out.println("error final: " + errorRateOnTrainDS);
     }
