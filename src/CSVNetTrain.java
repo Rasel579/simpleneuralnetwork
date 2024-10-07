@@ -9,7 +9,7 @@ public class CSVNetTrain {
     private static final int BATCH_SIZE = 2;
     private static final String SAVE_PATH = "./models/";
 
-    public static void train() {
+    public static NeuralNetwork train() {
         CSVParser data = new CSVParser("./trainediris/iris_dataset.csv", ",");
 
         NeuralNetwork network = new NeuralNetwork.Builder(4)
@@ -31,6 +31,7 @@ public class CSVNetTrain {
 
         result = network.evaluate(new Vec(data.getConvertedData().get(140)[0]));
         System.out.println(result.getResult(data.getAllMainMetrics()));
+        return network;
     }
 
     private static List<double[][]> getBatch(int i, List<double[][]> data) {

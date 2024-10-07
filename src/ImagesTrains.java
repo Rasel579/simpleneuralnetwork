@@ -17,7 +17,7 @@ public class ImagesTrains {
     private static final int BATCH_SIZE = 2;
     private static final String SAVE_PATH = "./models/";
 
-    public static void train() {
+    public static NeuralNetwork train() {
         Map<String, File[]> trainedData = ImageUtils.getTrainData("./trainData/alphabetset");
         Result result;
 
@@ -45,6 +45,8 @@ public class ImagesTrains {
             throw new RuntimeException(e);
         }
         System.out.println(result.getResult(trainedData.keySet()));
+
+        return network;
     }
 
     private static List<double[][]> getBatch(int i, List<double[][]> data) {

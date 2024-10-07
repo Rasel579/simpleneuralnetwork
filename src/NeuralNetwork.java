@@ -238,7 +238,6 @@ public class NeuralNetwork implements Serializable {
 
         public NetworkState(NeuralNetwork network) {
             costFunction = network.costFunction.getName();
-
             layers = new Layer.LayerState[network.layers.size()];
             for (int l = 0; l < network.layers.size(); l++) {
                 layers[l] = network.layers.get(l).getState();

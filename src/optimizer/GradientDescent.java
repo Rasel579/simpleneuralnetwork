@@ -25,4 +25,11 @@ public record GradientDescent(double learningRate) implements Optimizer, Seriali
     public Optimizer copy() {
         return this;
     }
+
+    @Override
+    public String getName() {
+        return "GradientDescent";
+    }
+
+
 }

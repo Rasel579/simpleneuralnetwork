@@ -157,7 +157,6 @@ public class Layer implements Serializable {
         return new LayerState(this);
     }
 
-    @SuppressWarnings("unused")
     public static class LayerState {
 
         double[][] weights;
