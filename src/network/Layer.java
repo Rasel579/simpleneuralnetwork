@@ -1,3 +1,5 @@
+package network;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import math.Matrix;
 import math.Vec;

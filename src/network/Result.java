@@ -1,3 +1,5 @@
+package network;
+
 import math.Vec;
 
 import java.util.Set;
@@ -39,7 +41,7 @@ public class Result {
 
     @Override
     public String toString() {
-        return "Result{" + "output=" + output +
+        return "network.Result{" + "output=" + output +
                 ", cost=" + cost +
                 '}';
     }

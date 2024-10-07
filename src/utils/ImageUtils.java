@@ -1,11 +1,13 @@
-package image;
+package utils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class ImageUtils {
     private static final int TARGET_WIDTH = 34;

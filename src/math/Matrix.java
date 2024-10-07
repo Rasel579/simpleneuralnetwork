@@ -1,6 +1,7 @@
 package math;
 
-import image.ImageUtils;
+import utils.ImageUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;

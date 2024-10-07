@@ -1,8 +1,12 @@
+package trains;
+
 import cost.Quadratic;
-import image.ImageUtils;
 import math.Matrix;
 import math.Vec;
+import network.*;
 import optimizer.GradientDescent;
+import utils.DataUtil;
+import utils.ImageUtils;
 
 import java.io.File;
 import java.io.IOException;

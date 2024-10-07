@@ -1,6 +1,12 @@
+package trains;
+
 import cost.Quadratic;
 import math.Vec;
+import network.*;
 import optimizer.GradientDescent;
+import utils.CSVParser;
+import utils.DataUtil;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;

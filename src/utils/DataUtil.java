@@ -1,3 +1,5 @@
+package utils;
+
 public class DataUtil {
   public static int maxIndxOfArray(double[] arr ){
      double maxVal = 0;
