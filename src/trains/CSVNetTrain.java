@@ -25,18 +25,19 @@ public class CSVNetTrain {
                 .initWeights(new Initializer.XavierNormal())
                 .setCostFunction(new Quadratic())
                 .setOptimizer(new GradientDescent(0.005))
+                .addTitles(data.getAllMainMetrics())
                 .create();
 
         learn(data.getConvertedData(), network);
 
         Result result = network.evaluate(new Vec(data.getConvertedData().get(5)[0]));
-        System.out.println(result.getResult(data.getAllMainMetrics()));
+        System.out.println(result.getResult(network.getTitles()));
 
         result = network.evaluate(new Vec(data.getConvertedData().get(85)[0]));
-        System.out.println(result.getResult(data.getAllMainMetrics()));
+        System.out.println(result.getResult(network.getTitles()));
 
         result = network.evaluate(new Vec(data.getConvertedData().get(140)[0]));
-        System.out.println(result.getResult(data.getAllMainMetrics()));
+        System.out.println(result.getResult(network.getTitles()));
         return network;
     }
 

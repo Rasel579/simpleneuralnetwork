@@ -32,6 +32,7 @@ public class ImagesTrains {
                 .initWeights(new Initializer.XavierNormal())
                 .setCostFunction(new Quadratic())
                 .setOptimizer(new GradientDescent(0.005))
+                .addTitles(trainedData.keySet())
                 .create();
 
         learn(trainedData, network);

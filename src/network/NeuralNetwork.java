@@ -12,6 +12,7 @@ import optimizer.Optimizer;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class NeuralNetwork implements Serializable {
 
@@ -23,6 +24,7 @@ public class NeuralNetwork implements Serializable {
     private double l2;
     @JsonProperty("optimizer")
     private Optimizer optimizer;
+    private Set<String> titles;
     @JsonProperty("layers")
     private List<Layer> layers = new ArrayList<>();
 
@@ -36,6 +38,7 @@ public class NeuralNetwork implements Serializable {
         networkInputSize = nb.networkInputSize;
         optimizer = nb.optimizer;
         l2 = nb.l2;
+        titles = nb.titles;
         //входной слой
         Layer inputLayer = new Layer(networkInputSize, Activation.Identity);
         layers.add(inputLayer);
@@ -130,7 +133,9 @@ public class NeuralNetwork implements Serializable {
 
 
     }
-
+    public Set<String> getTitles(){
+        return titles;
+    }
     public List<Layer> getLayers() {
         return layers;
     }
@@ -157,7 +162,7 @@ public class NeuralNetwork implements Serializable {
 
         private final List<Layer> layers = new ArrayList<>();
         private final int networkInputSize;
-
+        private Set<String> titles;
         private Initializer initializer = new Initializer.Random(-0.5, 0.5);
         private CostFunction costFunction = new Quadratic();
         private Optimizer optimizer = new GradientDescent(0.005);
@@ -217,6 +222,11 @@ public class NeuralNetwork implements Serializable {
 
         public Builder addLayer(Layer layer) {
             layers.add(layer);
+            return this;
+        }
+
+        public Builder addTitles(Set<String> titles) {
+            this.titles = titles;
             return this;
         }
 
