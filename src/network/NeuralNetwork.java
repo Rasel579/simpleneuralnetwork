@@ -1,20 +1,34 @@
+package network;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import cost.CostFunction;
+import cost.Quadratic;
 import math.Matrix;
 import math.Vec;
 import optimizer.GradientDescent;
 import optimizer.Optimizer;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-public class NeuralNetwork {
+public class NeuralNetwork implements Serializable {
 
-    private final CostFunction costFunction;
-    private final int networkInputSize;
-    private final double l2;
-    private final Optimizer optimizer;
+    @JsonProperty("costFunction")
+    private CostFunction costFunction;
+    @JsonProperty("networkInputSize")
+    private int networkInputSize;
+    @JsonProperty("l2")
+    private double l2;
+    @JsonProperty("optimizer")
+    private Optimizer optimizer;
+    private Set<String> titles;
+    @JsonProperty("layers")
+    private List<Layer> layers = new ArrayList<>();
 
-    private final List<Layer> layers = new ArrayList<>();
-
+    public NeuralNetwork(){}
     /**
      * Создает нейронную сеть с гиперпараметрами в билдере
      * @param nb билдер с гиперпараметрами сети
@@ -24,6 +38,7 @@ public class NeuralNetwork {
         networkInputSize = nb.networkInputSize;
         optimizer = nb.optimizer;
         l2 = nb.l2;
+        titles = nb.titles;
         //входной слой
         Layer inputLayer = new Layer(networkInputSize, Activation.Identity);
         layers.add(inputLayer);
@@ -61,7 +76,7 @@ public class NeuralNetwork {
      */
     public Result evaluate(Vec input, Vec expected) {
         Vec signal = input;
-        for (Layer layer : layers){
+        for (Layer layer : layers) {
             signal = layer.evaluate(signal);
         }
 
@@ -112,19 +127,27 @@ public class NeuralNetwork {
      */
     public synchronized void updateFromLearning() {
         for (Layer l : layers)
-            if (l.hasPrecedingLayer()){
+            if (l.hasPrecedingLayer()) {
                 l.updateWeightsAndBias();
             }
 
 
     }
-
+    public Set<String> getTitles(){
+        return titles;
+    }
     public List<Layer> getLayers() {
         return layers;
     }
 
-    public String toJson(boolean pretty) {
-        return new NetworkState(this).toString();
+    public void saveModelToJson(String path, String name) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(new File(path + name + ".json"), this);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -139,9 +162,9 @@ public class NeuralNetwork {
 
         private final List<Layer> layers = new ArrayList<>();
         private final int networkInputSize;
-
+        private Set<String> titles;
         private Initializer initializer = new Initializer.Random(-0.5, 0.5);
-        private CostFunction costFunction = new CostFunction.Quadratic();
+        private CostFunction costFunction = new Quadratic();
         private Optimizer optimizer = new GradientDescent(0.005);
         private double l2 = 0;
 
@@ -202,8 +225,21 @@ public class NeuralNetwork {
             return this;
         }
 
+        public Builder addTitles(Set<String> titles) {
+            this.titles = titles;
+            return this;
+        }
+
         public NeuralNetwork create() {
             return new NeuralNetwork(this);
+        }
+        public NeuralNetwork load(String path){
+            ObjectMapper mapper = new ObjectMapper();
+            try(InputStream is = new FileInputStream(path)) {
+                return mapper.readValue(is, NeuralNetwork.class);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
     }
@@ -214,7 +250,6 @@ public class NeuralNetwork {
 
         public NetworkState(NeuralNetwork network) {
             costFunction = network.costFunction.getName();
-
             layers = new Layer.LayerState[network.layers.size()];
             for (int l = 0; l < network.layers.size(); l++) {
                 layers[l] = network.layers.get(l).getState();

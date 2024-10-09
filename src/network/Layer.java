@@ -1,26 +1,44 @@
+package network;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import math.Matrix;
 import math.Vec;
 import optimizer.Optimizer;
+
+import java.io.Serializable;
 
 /**
  * Слой в нейросети
  * Содержит веса и смещения
  */
-public class Layer {
+public class Layer implements Serializable {
 
-    private final int size;
-    private final ThreadLocal<Vec> out = new ThreadLocal<>();
-    private final Activation activation;
+    @JsonProperty("size")
+    private int size;
+    @JsonProperty("out")
+    private Vec out = new Vec();
+    @JsonProperty("activation")
+    private Activation activation;
+    @JsonProperty("optimizer")
     private Optimizer optimizer;
+    @JsonProperty("weights")
     private Matrix weights;
+    @JsonProperty("bias")
     private Vec bias;
+    @JsonProperty("l2")
     private double l2 = 0;
+    @JsonProperty("precedingLayer")
     private Layer precedingLayer; //предшествующий слой
+    @JsonProperty("deltaWeights")
     private transient Matrix deltaWeights; //разность весов
+    @JsonProperty("deltaBias")
     private transient Vec deltaBias; //разность смещений
+    @JsonProperty("deltaWeightsAdded")
     private transient int deltaWeightsAdded = 0; //кол-во весов добавлено
+    @JsonProperty("deltaBiasAdded")
     private transient int deltaBiasAdded = 0;  //кол-во смещений добавлено
-
+    public Layer(){
+    }
     public Layer(int size, Activation activation) {
         this(size, activation, 0);
     }
@@ -52,15 +70,15 @@ public class Layer {
      */
     public Vec evaluate(Vec i) {
         if (!hasPrecedingLayer()) {
-            out.set(i);    // Не расчитывает, просто сохраняет
+            out = i;    // Не расчитывает, просто сохраняет
         } else {
-            out.set(activation.fn(i.multiplyByValue(weights).addVecBySumValues(bias)));
+            out = activation.fn(i.multiplyByValue(weights).addVecBySumValues(bias));
         }
-        return out.get();
+        return out;
     }
 
     public Vec getOut() {
-        return out.get();
+        return out;
     }
 
     public Activation getActivation() {
@@ -141,7 +159,6 @@ public class Layer {
         return new LayerState(this);
     }
 
-    @SuppressWarnings("unused")
     public static class LayerState {
 
         double[][] weights;

@@ -1,15 +1,21 @@
+package network;
+
 import math.Function;
 import math.Vec;
+
+import java.io.Serializable;
 
 import static java.lang.Math.exp;
 import static java.lang.Math.log;
 
-public class Activation {
+public class Activation implements Serializable {
 
-    private final String name;
+    private String name;
     private Function fn; //функция
     private Function dFn; //производная функции
 
+    public  Activation(){
+    }
     public Activation(String name) {
         this.name = name;
     }

@@ -1,4 +1,8 @@
+package network;
+
 import math.Vec;
+
+import java.util.Set;
 
 public class Result {
     private final Vec output;
@@ -18,13 +22,26 @@ public class Result {
         return output;
     }
 
+    public String getResult(Set<String> data) {
+        int idx = 0;
+        double maxVal = 0;
+        for (int i = 0; i < output.getData().length; i++) {
+            if ( output.getData()[i] > maxVal){
+                maxVal = output.getData()[i];
+                idx = i;
+            }
+        }
+
+        return (String) data.toArray()[idx];
+    }
+
     public Double getCost() {
         return cost;
     }
 
     @Override
     public String toString() {
-        return "Result{" + "output=" + output +
+        return "network.Result{" + "output=" + output +
                 ", cost=" + cost +
                 '}';
     }

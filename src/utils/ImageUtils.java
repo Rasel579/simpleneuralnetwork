@@ -1,4 +1,4 @@
-package image;
+package utils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -7,18 +7,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ImageUtils {
-    private static final String PATH = "./images";
-    private static final int TARGET_WIDTH = 255;
-    private static final int TARGET_HEIGHT = 255;
+    private static final int TARGET_WIDTH = 34;
+    private static final int TARGET_HEIGHT = 34;
 
     /**
      * Получаем тренировочную выборку выборку
      */
-    public static Map<String, File[]> getTrainData(){
+    public static Map<String, File[]> getTrainData(String pathData){
         Map<String, File[]> trainData = new HashMap<>();
-        File rootDirectory = new File(PATH);
+        File rootDirectory = new File(pathData);
 
         if ( rootDirectory.exists()){
             for ( File labelDirectory: rootDirectory.listFiles() ){
@@ -51,9 +51,27 @@ public class ImageUtils {
         double[][] pixels = new double[width][height];
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                pixels[i][j] = bufImg.getRGB(i, j);
+                Color temp = new Color(bufImg.getRGB(i, j));
+                pixels[i][j] = temp.getRed(); //ориентация на красный канал
             }
         }
         return pixels;
+    }
+
+    /**
+     * Получает вектор из целевой метрики
+     */
+    public static double[] getVecFromData(Set<String> data, String expect){
+        double[] result = new double[data.size()];
+        int i = 0;
+        for ( String keyData: data ){
+            if (keyData.equals(expect)){
+                result[i] = 1;
+            } else {
+                result[i] = 0;
+            }
+            i++;
+        }
+        return result;
     }
 }

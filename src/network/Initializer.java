@@ -1,3 +1,5 @@
+package network;
+
 import math.Matrix;
 
 import static math.SharedRnd.getRnd;

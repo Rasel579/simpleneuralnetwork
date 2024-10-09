@@ -1,8 +1,10 @@
 package math;
 
-import image.ImageUtils;
+import utils.ImageUtils;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.StringJoiner;
 
@@ -10,10 +12,13 @@ import static java.lang.String.format;
 import static java.lang.System.arraycopy;
 import static java.util.Arrays.stream;
 
-public class Matrix {
-    private final double[][] data;
-    private final int rows;
-    private final int cols;
+public class Matrix implements Serializable {
+    private double[][] data;
+    private int rows;
+    private int cols;
+
+    public Matrix(){
+    }
 
     public Matrix(double[][] data) {
         this.data = data;

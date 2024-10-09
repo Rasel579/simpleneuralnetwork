@@ -3,10 +3,12 @@ package optimizer;
 import math.Matrix;
 import math.Vec;
 
+import java.io.Serializable;
+
 /**
  * Обновляет веса и смещения на основе скорости обучения - i.e. W -= η * dC/dW
  */
-public record GradientDescent(double learningRate) implements Optimizer {
+public record GradientDescent(double learningRate) implements Optimizer, Serializable {
 
 
     @Override
@@ -23,4 +25,11 @@ public record GradientDescent(double learningRate) implements Optimizer {
     public Optimizer copy() {
         return this;
     }
+
+    @Override
+    public String getName() {
+        return "GradientDescent";
+    }
+
+
 }
